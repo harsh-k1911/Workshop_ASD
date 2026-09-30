@@ -26,6 +26,7 @@ async function readFile() {
 
 }
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 app.get("/products",async(req,res) => {
     let products = await readFile();
@@ -34,6 +35,7 @@ app.get("/products",async(req,res) => {
 
 app.get("/products/:id",async(req,res) => {
     try{
+    await delay(3500)
     let {id} = req.params
     id = Number(id)
     let products = await readFile();

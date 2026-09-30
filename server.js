@@ -4,7 +4,9 @@ const port = 3000;
 const fs = require('fs/promises');
 const path = require('path');
 
+
 const pathFile = path.join(__dirname, 'db.json');
+const cashe = {};
 
 // reading the file synchronously
 
@@ -16,8 +18,11 @@ const pathFile = path.join(__dirname, 'db.json');
 
 // reading the file asynchronously
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function readFile() {
     try {
+    await delay(1500)
     let data = await fs.readFile(pathFile,"utf-8")
     return JSON.parse(data);
     } catch (error) {
@@ -26,16 +31,24 @@ async function readFile() {
 
 }
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 app.get("/products",async(req,res) => {
+    try{
+    let key = req.url;
+    let value = cashe[key];
+    if (value) {
+        return res.json(value);
+    }
     let products = await readFile();
+    cashe[key] = products;
     res.json(products);
+    } catch (error) {
+        console.log(error)
+    }
+    
 })
 
 app.get("/products/:id",async(req,res) => {
     try{
-    await delay(3500)
     let {id} = req.params
     id = Number(id)
     let products = await readFile();
@@ -46,6 +59,8 @@ app.get("/products/:id",async(req,res) => {
     }
 
 })
+
+
 
 app.listen(port, ()=>{
     console.log("server is running")

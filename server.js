@@ -49,9 +49,15 @@ app.get("/products",async(req,res) => {
 
 app.get("/products/:id",async(req,res) => {
     try{
+    let key = req.url;
+    let value = cashe[key];
+    if (value) {
+        return res.json(value);
+    }
     let {id} = req.params
     id = Number(id)
     let products = await readFile();
+    cashe[key] = products;
     let product = products.find((item) => {return item.id === id});
     res.json(product);
     } catch (error) {
